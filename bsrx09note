@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NotePad - Modern Not Alma Uygulaması</title>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100%;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .note-form {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 40px;
+            transform: translateY(0);
+            transition: all 0.3s ease;
+        }
+
+        .note-form:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.25);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1rem;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .color-picker {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .color-option:hover {
+            transform: scale(1.1);
+            border-color: #333;
+        }
+
+        .color-option.selected {
+            border-color: #333;
+            transform: scale(1.1);
+        }
+
+        .color-option.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-weight: bold;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 8px 25px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        }
+
+        .btn-danger:hover {
+            box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+        }
+
+        .notes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .note-card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            animation: slideIn 0.5s ease;
+        }
+
+        .note-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .note-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: var(--note-color, #667eea);
+        }
+
+        .note-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #333;
+            word-wrap: break-word;
+        }
+
+        .note-content {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            word-wrap: break-word;
+        }
+
+        .note-date {
+            font-size: 0.85rem;
+            color: #999;
+            margin-bottom: 15px;
+        }
+
+        .note-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            border-radius: 8px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: white;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .empty-state p {
+            opacity: 0.7;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+        }
+
+        .note-card.removing {
+            animation: fadeOut 0.3s ease forwards;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .note-form {
+                padding: 20px;
+                margin-bottom: 30px;
+            }
+            
+            .notes-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .note-actions {
+                flex-direction: column;
+            }
+            
+            .color-picker {
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .note-form {
+                padding: 15px;
+            }
+            
+            .form-group input,
+            .form-group textarea {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>📝 NotePad</h1>
+            <p>Modern ve kullanıcı dostu not alma uygulamanız</p>
+        </header>
+
+        <div class="note-form">
+            <form id="noteForm">
+                <div class="form-group">
+                    <label for="noteTitle">Not Başlığı</label>
+                    <input type="text" id="noteTitle" placeholder="Notunuz için bir başlık girin..." required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="noteContent">Not İçeriği</label>
+                    <textarea id="noteContent" placeholder="Notunuzun içeriğini buraya yazın..." required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Renk Seçin</label>
+                    <div class="color-picker">
+                        <div class="color-option selected" data-color="#667eea" style="background: #667eea;"></div>
+                        <div class="color-option" data-color="#f093fb" style="background: #f093fb;"></div>
+                        <div class="color-option" data-color="#4facfe" style="background: #4facfe;"></div>
+                        <div class="color-option" data-color="#43e97b" style="background: #43e97b;"></div>
+                        <div class="color-option" data-color="#fa709a" style="background: #fa709a;"></div>
+                        <div class="color-option" data-color="#ffecd2" style="background: #ffecd2;"></div>
+                        <div class="color-option" data-color="#a8edea" style="background: #a8edea;"></div>
+                        <div class="color-option" data-color="#ffd89b" style="background: #ffd89b;"></div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn" id="submitBtn">
+                    <span id="submitText">Not Ekle</span>
+                </button>
+            </form>
+        </div>
+
+        <div id="notesContainer">
+            <div class="notes-grid" id="notesGrid"></div>
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <h3>Henüz not eklenmemiş</h3>
+                <p>Yukarıdaki formu kullanarak ilk notunuzu ekleyin!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class NotePad {
+            constructor() {
+                this.notes = this.loadNotes();
+                this.editingId = null;
+                this.selectedColor = '#667eea';
+                this.init();
+            }
+
+            init() {
+                this.bindEvents();
+                this.renderNotes();
+            }
+
+            bindEvents() {
+                // Form gönderimi
+                document.getElementById('noteForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleSubmit();
+                });
+
+                // Renk seçimi
+                document.querySelectorAll('.color-option').forEach(option => {
+                    option.addEventListener('click', (e) => {
+                        this.selectColor(e.target);
+                    });
+                });
+            }
+
+            selectColor(element) {
+                // Önceki seçimi kaldır
+                document.querySelectorAll('.color-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                
+                // Yeni seçimi ekle
+                element.classList.add('selected');
+                this.selectedColor = element.dataset.color;
+            }
+
+            handleSubmit() {
+                const title = document.getElementById('noteTitle').value.trim();
+                const content = document.getElementById('noteContent').value.trim();
+
+                if (!title || !content) {
+                    return;
+                }
+
+                if (this.editingId) {
+                    this.updateNote(this.editingId, title, content, this.selectedColor);
+                } else {
+                    this.addNote(title, content, this.selectedColor);
+                }
+
+                this.resetForm();
+            }
+
+            addNote(title, content, color) {
+                const note = {
+                    id: Date.now().toString(),
+                    title,
+                    content,
+                    color,
+                    createdAt: new Date().toLocaleString('tr-TR')
+                };
+
+                this.notes.unshift(note);
+                this.saveNotes();
+                this.renderNotes();
+            }
+
+            updateNote(id, title, content, color) {
+                const noteIndex = this.notes.findIndex(note => note.id === id);
+                if (noteIndex !== -1) {
+                    this.notes[noteIndex] = {
+                        ...this.notes[noteIndex],
+                        title,
+                        content,
+                        color,
+                        updatedAt: new Date().toLocaleString('tr-TR')
+                    };
+                    this.saveNotes();
+                    this.renderNotes();
+                }
+                this.editingId = null;
+            }
+
+            editNote(id) {
+                const note = this.notes.find(note => note.id === id);
+                if (note) {
+                    document.getElementById('noteTitle').value = note.title;
+                    document.getElementById('noteContent').value = note.content;
+                    
+                    // Renk seçimini güncelle
+                    document.querySelectorAll('.color-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                        if (opt.dataset.color === note.color) {
+                            opt.classList.add('selected');
+                        }
+                    });
+                    
+                    this.selectedColor = note.color;
+                    this.editingId = id;
+                    
+                    // Buton metnini güncelle
+                    document.getElementById('submitText').textContent = 'Notu Güncelle';
+                    
+                    // Forma scroll
+                    document.querySelector('.note-form').scrollIntoView({ 
+                        behavior: 'smooth' 
+                    });
+                }
+            }
+
+            deleteNote(id) {
+                const noteElement = document.querySelector(`[data-note-id="${id}"]`);
+                
+                // Silme animasyonu
+                noteElement.classList.add('removing');
+                
+                setTimeout(() => {
+                    this.notes = this.notes.filter(note => note.id !== id);
+                    this.saveNotes();
+                    this.renderNotes();
+                }, 300);
+            }
+
+            resetForm() {
+                document.getElementById('noteForm').reset();
+                this.editingId = null;
+                this.selectedColor = '#667eea';
+                
+                // İlk rengi seç
+                document.querySelectorAll('.color-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                document.querySelector('.color-option').classList.add('selected');
+                
+                // Buton metnini sıfırla
+                document.getElementById('submitText').textContent = 'Not Ekle';
+            }
+
+            renderNotes() {
+                const notesGrid = document.getElementById('notesGrid');
+                const emptyState = document.getElementById('emptyState');
+
+                if (this.notes.length === 0) {
+                    notesGrid.innerHTML = '';
+                    emptyState.style.display = 'block';
+                    return;
+                }
+
+                emptyState.style.display = 'none';
+                
+                notesGrid.innerHTML = this.notes.map(note => `
+                    <div class="note-card" data-note-id="${note.id}" style="--note-color: ${note.color}">
+                        <h3 class="note-title">${this.escapeHtml(note.title)}</h3>
+                        <p class="note-content">${this.escapeHtml(note.content)}</p>
+                        <div class="note-date">
+                            ${note.updatedAt ? `Güncellendi: ${note.updatedAt}` : `Oluşturuldu: ${note.createdAt}`}
+                        </div>
+                        <div class="note-actions">
+                            <button class="btn btn-secondary btn-small" onclick="notePad.editNote('${note.id}')">
+                                Düzenle
+                            </button>
+                            <button class="btn btn-danger btn-small" onclick="notePad.deleteNote('${note.id}')">
+                                Sil
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            saveNotes() {
+                localStorage.setItem('notepad-notes', JSON.stringify(this.notes));
+            }
+
+            loadNotes() {
+                const saved = localStorage.getItem('notepad-notes');
+                return saved ? JSON.parse(saved) : [];
+            }
+        }
+
+        // Uygulamayı başlat
+        const notePad = new NotePad();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'990502e69282ae07',t:'MTc2MDc1ODc5NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
